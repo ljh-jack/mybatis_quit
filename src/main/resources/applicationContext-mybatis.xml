@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+    <!--若springmvc中只扫描controller,则需要加上service,和dao的扫描功能-->
+<!--   use-default-filters="false"-->
+    <context:component-scan base-package="cn.lanqiao">
+    <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+
+
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+    <bean id="dataSource"  class="org.apache.commons.dbcp.BasicDataSource"  destroy-method="close" scope="singleton">
+        <property name="driverClassName" value="${jdbc.driver}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+        <property name="initialSize" value="${jdbc.initialSize}"/>
+        <property name="maxActive" value="${jdbc.maxActive}"/>
+        <property name="maxIdle" value="${jdbc.maxIdle}"/>
+        <property name="minIdle" value="${jdbc.minIdle}"/>
+        <property name="maxWait" value="${jdbc.maxWait}"/>
+        <property name="removeAbandonedTimeout" value="${jdbc.removeAbandonedTimeout}"/>
+        <property name="removeAbandoned" value="${jdbc.removeAbandoned}"/>
+        <!-- sql 心跳 -->
+        <property name= "testWhileIdle" value="true"/>
+        <property name= "testOnBorrow" value="false"/>
+        <property name= "testOnReturn" value="false"/>
+        <property name= "validationQuery" value="select 1"/>
+        <property name= "timeBetweenEvictionRunsMillis" value="60000"/>
+        <property name= "numTestsPerEvictionRun" value="${jdbc.maxActive}"/>
+    </bean>
+    <!--配置sqlSessionFactory-->
+    <bean id="sqlSessionFactory" class="com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+<!--        <property name="configLocation" value="classpath:applicationContext-mybatis.xml"/>-->
+<!--        <property name="typeAliasesPackage" value="com.lanqiao.entity" ></property>-->
+        <property name="mapperLocations" value="classpath:mapper/*/*.xml"></property>
+        <property name="plugins">
+            <array>
+                <ref bean="PaginationInterceptor"></ref>
+            </array>
+        </property>
+    </bean>
+    <!--    配置分页插件-->
+    <bean id="PaginationInterceptor" class="com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor"></bean>
+
+    <!--扫描映射文件(mapper动态代理)-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage"  value="cn.lanqiao.mapper"/>
+    </bean>
+
+    <!-- 配置事务管理器 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 开启注解 -->
+    <mvc:annotation-driven/>
+    <!--transaction-manager="transactionManager"一定要加上,否则会报错,该配置是以事物的方式开启注解-->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+    <!--对静态资源文件的访问-->
+    <mvc:resources mapping="/static/**" location="/static/"/>
+
+
+
+</beans>
