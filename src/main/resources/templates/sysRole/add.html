@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns:th=“http://www.thymeleaf.org”>
+<head>
+    <meta charset="utf-8">
+    <title>添加用户</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/static/lib/layui-v2.6.3/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/static/css/public.css}" media="all">
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-form layuimini-form">
+
+    <div class="layui-form-item">
+        <label class="layui-form-label required">角色名称</label>
+        <div class="layui-input-block">
+            <input type="text" name="roleName" placeholder="请输入" autocomplete="off" class="layui-input" id="roleName">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label required">菜单</label>
+        <div class="layui-input-block">
+            <div id="menu" className="xm-select-menu"></div>
+        </div>
+    </div>
+
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">备注信息</label>
+        <div class="layui-input-block">
+            <textarea name="remark" class="layui-textarea" placeholder="请输入备注信息"></textarea>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">确认保存</button>
+        </div>
+    </div>
+</div>
+<script th:src="@{/static/lib/layui-v2.6.3/layui.js}" charset="utf-8"></script>
+<script th:src="@{/static/js/lay-config.js}" charset="utf-8"></script>
+
+<script>
+    layui.use(['form','treeSelect','xmSelect'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            $ = layui.$,
+            xmSelect= layui.xmSelect;
+
+        ['showFolderIcon', 'showLine', 'strict'].forEach(function(key){
+            layui.form.on('checkbox('+key+')', function(data){
+                var treeConfig = {};
+                treeConfig[key] = data.elem.checked;
+                menu.update({
+                    tree: treeConfig
+                })
+            });
+        })
+
+
+        var menu = xmSelect.render({
+            el: '#menu',
+            name: 'menuIds',
+            autoRow: true,
+            filterable: true,
+            tree: {
+                show: true,
+                showFolderIcon: true,
+                showLine: true,
+                indent: 20,
+                expandedKeys: [ -3 ],
+            },
+            filterable: true,
+            height: 'auto',
+            data(){
+                var data;
+                $.ajax({
+                    url : ctxPath+"/sysMenu/listTree",
+                    type : 'post',
+                    datatype : 'String',
+                    async: false,//同步
+                    success : function(result) {
+                        data=result;
+                    }
+                });
+                return data;
+            }
+        })
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+            let date = JSON.stringify(data.field);
+            $.ajax({
+                url :ctxPath+ "/sysRole/add",
+                type : 'post',
+                contentType: "application/json;charset=utf-8",
+                datatype : 'json',
+                data : date,
+                success : function(result) {
+                    if (result.code!=0) {
+                        layer.msg(result.msg);
+                    } else {
+                        window.parent.location.reload()
+
+                    }
+                }
+            });
+           return false;
+        });
+    });
+</script>
+</body>
+</html>

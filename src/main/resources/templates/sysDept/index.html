@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns:th=“http://www.thymeleaf.org”>
+<head>
+    <meta charset="UTF-8">
+    <title>menu</title>
+    <link rel="stylesheet" th:href="@{/static/lib/layui-v2.6.3/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/static/css/public.css}" media="all">
+    <style>
+        .layui-btn:not(.layui-btn-lg ):not(.layui-btn-sm):not(.layui-btn-xs) {
+            height: 34px;
+            line-height: 34px;
+            padding: 0 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <div>
+            <div class="layui-btn-group">
+                <button class="layui-btn" id="btn-expand">全部展开</button>
+                <button class="layui-btn layui-btn-normal" id="btn-fold">全部折叠</button>
+                <button class="layui-btn layui-btn-normal  data-add-btn" id="btn-add"> 添加 </button>
+
+            </div>
+            <table id="munu-table" class="layui-table" lay-filter="munu-table"></table>
+        </div>
+    </div>
+</div>
+<!-- 操作列 -->
+<script type="text/html" id="auth-state">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">修改</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+
+</script>
+
+<script th:src="@{/static/lib/layui-v2.6.3/layui.js}" charset="utf-8"></script>
+<script th:src="@{/static/js/lay-config.js?v=1.0.4}" charset="utf-8"></script>
+<script>
+    var ctxPath = /*[[@{/}]]*/ '';
+    layui.use(['table', 'treetable','form'], function () {
+        var $ = layui.jquery;
+        var table = layui.table;
+        var form = layui.form;
+        var treetable = layui.treetable;
+
+        // 渲染表格
+        layer.load(2);
+        treetable.render({
+            treeColIndex: 1,
+            treeSpid: 0,
+            treeIdName: 'id',
+            treePidName: 'parentId',
+            elem: '#munu-table',
+            url:  ctxPath+'/sysDept/list',
+            page: false,
+            cols: [ [
+                {field: 'id',title: "ID"},
+                {field: 'deptName', minWidth: 200, title: '部门名称'},
+                {field: 'createTime', title: '创建时间'},
+                {field: 'updateTime', title: '修改时间'},
+                {field: 'orderNum', width: 80, align: 'center', title: '排序号'},
+                {field: 'status', width: 200, title: '状态',templet: function(d) {
+                        var statusStr = "";
+                        if (d.status=="1") {
+                            statusStr = '<input id="status_switch_'+d.id+'" lay-filter ="status_switch" type="checkbox" value="'+d.id+'" name="close" checked="checked" lay-skin="switch" lay-text="启用|禁用">'
+                        }else {
+                            statusStr = ' <input id="status_switch_'+d.id+'" lay-filter ="status_switch" type="checkbox" value="'+d.id+'" name="close" lay-skin="switch" lay-text="启用|禁用">'
+                        }
+                        return statusStr;
+                    }
+
+                },
+                {templet: '#auth-state', width: 120, align: 'center', title: '操作'}
+            ] ],
+            done: function () {
+                layer.closeAll('loading');
+            }
+        });
+
+        $('#btn-expand').click(function () {
+            treetable.expandAll('#munu-table');
+        });
+
+        $('#btn-fold').click(function () {
+            treetable.foldAll('#munu-table');
+        });
+        //添加按钮
+        $('#btn-add').click(function () {
+            let index = layer.open({
+                title: '添加部门',
+                type: 2,
+                shade: 0.2,
+                maxmin:false,
+                shadeClose: true,
+                area: ['50%', '50%'],
+                content:ctxPath+'/sysDept/addUI',
+            });
+            $(window).on("resize", function () {
+                layer.full(index);
+            });
+        });
+
+
+
+        //监听工具条
+        table.on('tool(munu-table)', function (obj) {
+            var data = obj.data;
+            var layEvent = obj.event;
+            if (layEvent === 'del') {
+                layer.confirm('真的删除行么', function (index) {
+                    $.ajax({
+                        url :ctxPath+"/sysDept/delete",
+                        type : 'post',
+                        datatype : 'String',
+                        data :{
+                            "id" : data.id
+                        },
+                        success : function(result) {
+                            if (result.code!=0) {
+                                layer.msg(result.msg);
+                            } else {
+                                window.parent.location.reload()
+                            }
+                        }
+                    });
+                });
+            }  else if (layEvent === 'edit') {
+                var index = layer.open({
+                    title: '编辑部门',
+                    type: 2,
+                    shade: 0.2,
+                    maxmin:false,
+                    shadeClose: true,
+                    area: ['100%', '100%'],
+                    content: ctxPath+'/sysDept/editUI?id='+data.id,
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
+                });
+                return false;
+            }
+        });
+        form.on('switch(status_switch)', function (data) {
+            var id  = data.value;
+            console.log(id);
+            var status = this.checked ? "1" : "2";
+            $.ajax({
+                type:"get",
+                url:ctxPath+"/sysDept/setStatus",
+                dataType:'JSON',
+                data:{
+                    "id":id,"status":status
+                },
+                success:function (result){
+                    if(result.code!==0){
+                        layer.tips(result.msg ,data.othis);
+                        var em = $(data.othis[0]);
+                        if(status==="2"){
+                            $("#status_switch_"+id).prop("checked","checked");
+                            data.othis[0].classList.add("layui-form-onswitch");
+                            em.children('em').text('启用');
+                            layer.msg(result.msg);
+
+                        }else {
+                            $("#status_switch_"+id).removeAttr("checked");
+                            data.othis[0].classList.remove("layui-form-onswitch");
+                            em.children('em').text('禁用');
+                            layer.msg(result.msg);
+                        }
+                    }else {
+                        layer.tips(result.msg,data.othis);
+
+                    }
+                }
+            })
+        });
+    });
+</script>
+</body>
+</html>

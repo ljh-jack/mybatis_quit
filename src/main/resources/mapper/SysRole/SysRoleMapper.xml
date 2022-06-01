@@ -13,4 +13,9 @@
         <result column="remark" property="remark" />
     </resultMap>
 
+    <insert id="addRole" parameterType="cn.lanqiao.entity.SysRole"  useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO `sys_role` (`role_name`, `create_by`, `create_time`, `update_by`, `update_time`, `remark`)
+        VALUES (#{roleName}, #{createBy}, #{createTime}, #{updateBy},#{updateTime}, #{remark})
+    </insert>
+
 </mapper>

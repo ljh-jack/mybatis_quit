@@ -10,6 +10,8 @@ import lombok.Data;
  */
 @Data
 public class SysUserQuery extends BaseQuery {
-    private String username;
+    private String loginName;
     private  String phoneNumber;
+    private  String deptId;
+    private String roleId;
 }

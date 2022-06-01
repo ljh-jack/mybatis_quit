@@ -20,6 +20,7 @@ public class UserListVo {
      * 部门ID
      */
     private String deptId;
+    private  String deptName;
     /**
      * 登录账号
      */

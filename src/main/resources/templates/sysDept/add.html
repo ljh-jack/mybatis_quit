@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns:th=“http://www.thymeleaf.org”>
+<head>
+  <meta charset="utf-8">
+  <title>添加用户</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximumscale=1">
+  <link rel="stylesheet" th:href="@{/static/lib/layui-v2.6.3/css/layui.css}"
+        media="all">
+  <link rel="stylesheet" th:href="@{/static/css/public.css}" media="all">
+  <style>
+    body {
+      background-color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+<div class="layui-form layuimini-form">
+  <div class="layui-form-item">
+    <label class="layui-form-label required">部门名称</label>
+    <div class="layui-input-block">
+      <input type="text" name="deptName" lay-verify="required" lay-reqtext="部门名称不能为空" placeholder="请输入部门" value="" class="layui-input">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label required">上级部门</label>
+    <div class="layui-input-block">
+      <input type="number" name="parentId" lay-verify="required" id="dept"
+             placeholder="请输入选择上级部门" value="" class="layui-input">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label required">排序</label>
+    <div class="layui-input-block">
+      <input type="number" name="orderNum" lay-verify="required" lay-reqtext="请输入顺序号" placeholder="请输入顺序号" value="" class="layui-input">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <div class="layui-input-block">
+      <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">确认保存</button>
+    </div>
+  </div>
+</div>
+<script th:src="@{/static/lib/layui-v2.6.3/layui.js}" charset="utf-8"></script>
+<script th:src="@{/static/js/lay-config.js}" charset="utf-8"></script>
+<script>
+  var ctxPath = /*[[@{/}]]*/ '';
+  layui.use(['form','treeSelect'], function () {
+    var form = layui.form,
+            layer = layui.layer,
+            $ = layui.$,
+            treeSelect= layui.treeSelect;
+//部门树下拉框
+    treeSelect.render({
+// 选择器
+      elem: '#dept',
+// 数据
+      data: ctxPath+'/sysDept/listTree',
+// 异步加载方式：get/post，默认get
+      type: 'get',
+// 占位符
+      placeholder: '部门下拉列表',
+// 是否开启搜索功能：true/false，默认false
+      search: true,
+    });
+//监听提交
+    form.on('submit(saveBtn)', function (data) {
+      let date = JSON.stringify(data.field);
+      $.ajax({
+        url : ctxPath+"/sysDept/add",
+        type : 'post',
+        contentType: "application/json;charset=utf-8",
+        datatype : 'json',
+        data : date,
+        success : function(result) {
+          if (result.code!=0) {
+            layer.msg(result.msg);
+          } else {
+            var iframeIndex =
+                    parent.layer.getFrameIndex(window.name);
+            parent.layer.close(iframeIndex);
+            window.parent.location.reload();
+          }
+        }
+      });
+      return false;
+    });
+  });
+</script>
+</body>
+</html>

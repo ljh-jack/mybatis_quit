@@ -1,7 +1,10 @@
 package cn.lanqiao.service;
 
 import cn.lanqiao.entity.SysMenu;
+import cn.lanqiao.vo.tree.TreeVo;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ISysMenuService extends IService<SysMenu> {
 
+    List<TreeVo> getListById(String roleId);
 }

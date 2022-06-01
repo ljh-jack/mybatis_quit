@@ -4,6 +4,8 @@
  * description:此处放layui自定义扩展
  * version:2.0.4
  */
+var ctxPath = /*[[@{/}]]*/ '';
+
 
 window.rootPath = (function (src) {
     src = document.scripts[document.scripts.length - 1].src;
@@ -12,7 +14,7 @@ window.rootPath = (function (src) {
 
 layui.config({
     base: rootPath + "lay-module/",
-    version: true
+    version: false
 }).extend({
     miniAdmin: "layuimini/miniAdmin", // layuimini后台扩展
     miniMenu: "layuimini/miniMenu", // layuimini菜单扩展
@@ -27,4 +29,7 @@ layui.config({
     echartsTheme: 'echarts/echartsTheme', // echarts图表主题扩展
     wangEditor: 'wangEditor/wangEditor', // wangEditor富文本扩展
     layarea: 'layarea/layarea', //  省市县区三级联动下拉选择器
+    treeSelect: 'treeSelect/treeSelect', //  下拉树菜单
+    customSelect:'customSelect/customSelect',
+    xmSelect:'xmSelect/xm-select',
 });

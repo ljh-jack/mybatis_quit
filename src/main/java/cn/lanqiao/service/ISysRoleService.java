@@ -1,6 +1,9 @@
 package cn.lanqiao.service;
 
+import cn.lanqiao.common.BaseQuery;
+import cn.lanqiao.common.utils.JsonResult;
 import cn.lanqiao.entity.SysRole;
+import cn.lanqiao.query.SysRoleQuery;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -13,4 +16,12 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ISysRoleService extends IService<SysRole> {
 
+    JsonResult getList(BaseQuery query);
+
+    JsonResult deleteByIds(String ids);
+
+    Object getInfo(Long id);
+
+    JsonResult edit(SysRole sysRole, String menuIds);
+    
 }

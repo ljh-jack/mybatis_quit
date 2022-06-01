@@ -1,6 +1,9 @@
 package cn.lanqiao.common;
 
 import cn.lanqiao.common.utils.StringUtils;
+import cn.lanqiao.service.ISysDeptService;
+import cn.lanqiao.service.ISysMenuService;
+import cn.lanqiao.service.ISysRoleService;
 import cn.lanqiao.service.ISysUserService;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +30,12 @@ public class BaseController {
 
     @Resource
     protected ISysUserService userService;
-
+    @Resource
+    protected ISysDeptService deptService;
+    @Resource
+    protected ISysRoleService roleService;
+    @Resource
+    protected ISysMenuService menuService;
 
 
 }

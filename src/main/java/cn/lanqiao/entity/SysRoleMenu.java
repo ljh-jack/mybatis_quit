@@ -38,5 +38,13 @@ public class SysRoleMenu implements Serializable {
     @TableField("menu_id")
     private String menuId;
 
+    public SysRoleMenu() {
+    }
+
+    public SysRoleMenu(String menuId, String roleId) {
+        this.menuId=menuId;
+        this.roleId=roleId;
+    }
+
 
 }

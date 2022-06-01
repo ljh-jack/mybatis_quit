@@ -10,7 +10,7 @@
     <!--需要扫描的包,注意,若spring配置文件 中不配置相关包的扫描功能,则此处只到cn.wedding,否则会报错:错误的创建bean-->
     <context:component-scan base-package="cn.lanqiao.controller"/>
 
-    <!--配置试图解析器-->
+    <!--配置视图解析器-->
     <!--    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">-->
     <!--        <property name="prefix" value="/WEB-INF/templates/"/>-->
     <!--        <property name="suffix" value=".html"/>-->

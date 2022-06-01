@@ -58,4 +58,5 @@ public interface ISysUserService extends IService<SysUser> {
      * @return
      */
     JsonResult setStatus(SysUser entity);
+
 }

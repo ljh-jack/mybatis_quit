@@ -21,27 +21,21 @@
                 <form class="layui-form layui-form-pane" action="">
                     <div class="layui-form-item">
                         <div class="layui-inline">
-                            <label class="layui-form-label">用户姓名</label>
+                            <label class="layui-form-label">登录名称</label>
                             <div class="layui-input-inline">
-                                <input type="text" name="username" autocomplete="off" class="layui-input">
+                                <input type="text" name="loginName" autocomplete="off" class="layui-input">
                             </div>
                         </div>
                         <div class="layui-inline">
-                            <label class="layui-form-label">用户性别</label>
+                            <label class="layui-form-label">手机号</label>
                             <div class="layui-input-inline">
-                                <input type="text" name="sex" autocomplete="off" class="layui-input">
+                                <input type="text" name="phoneNumber" autocomplete="off" class="layui-input">
                             </div>
                         </div>
                         <div class="layui-inline">
-                            <label class="layui-form-label">用户城市</label>
+                            <label class="layui-form-label">部门</label>
                             <div class="layui-input-inline">
-                                <input type="text" name="city" autocomplete="off" class="layui-input">
-                            </div>
-                        </div>
-                        <div class="layui-inline">
-                            <label class="layui-form-label">用户职业</label>
-                            <div class="layui-input-inline">
-                                <input type="text" name="classify" autocomplete="off" class="layui-input">
+                                <input type="text" id="dept" lay-filter="tree" name="deptId" class="layui-input">
                             </div>
                         </div>
                         <div class="layui-inline">
@@ -69,17 +63,55 @@
     </div>
 </div>
 <script th:src="@{/static/lib/layui-v2.6.3/layui.js}" charset="utf-8"></script>
+<script th:src="@{/static/js/lay-config.js}"></script>
+<script>
 
-<script th:inline="javascript">
     var ctxPath = /*[[@{/}]]*/ '';
-    layui.use(['form', 'table'], function () {
+    layui.use(['form', 'table','treeSelect'], function () {
         var $ = layui.jquery,
             form = layui.form,
             table = layui.table;
-
+            treeSelect= layui.treeSelect;
+            treeSelect.render({
+            // 选择器
+            elem: '#dept',
+            // 数据
+            data:ctxPath+'/sysDept/listTree' ,
+            // 异步加载方式：get/post，默认get
+            type: 'get',
+            // 占位符
+            placeholder: '请选择',
+            // 是否开启搜索功能：true/false，默认false
+            search: true,
+            // 一些可定制的样式
+            style: {
+                folder: {
+                    enable: true
+                },
+                line: {
+                    enable: true
+                }
+            },
+            // 点击回调
+            click: function(d){
+                console.log(d);
+            },
+            // 加载完成后的回调函数
+            success: function (d) {
+                console.log(d);
+// //                选中节点，根据id筛选
+//                 treeSelect.checkNode('tree', 3);
+//                 console.log($('#tree').val());
+// //                获取zTree对象，可以调用zTree方法
+//                 var treeObj = treeSelect.zTree('tree');
+//                 console.log(treeObj);
+// //                刷新树结构
+//                 treeSelect.refresh('tree');
+            }
+        });
         table.render({
             elem: '#currentTableId',
-            url: ctxPath+'sysUser/list',
+            url: ctxPath+'/sysUser/list',
             toolbar: '#toolbarDemo',
             defaultToolbar: ['filter', 'exports', 'print', {
                 title: '提示',
@@ -89,6 +121,7 @@
             cols: [ [
                 {type:  "checkbox", width: 50},
                 {field: 'id', width: 100, title: 'ID', sort: true},
+                {field: 'deptName', width: 100, title: '部门名称', sort: true},
                 {field: 'loginName', width: 100, title: '登录名', sort: true},
                 {field: 'userType', width: 100,align: "center", title: '用户类型'},
                 {field: 'email', width: 150, title: '邮箱',align: "center", sort: true},
@@ -123,27 +156,6 @@
             page: true,
             skin: 'line'
         });
-
-        // 监听搜索操作
-        form.on('submit(data-search-btn)', function (data) {
-            var result = JSON.stringify(data.field);
-            layer.alert(result, {
-                title: '最终的搜索信息'
-            });
-
-            //执行搜索重载
-            table.reload('currentTableId', {
-                page: {
-                    curr: 1
-                }
-                , where: {
-                    searchParams: result
-                }
-            }, 'data');
-
-            return false;
-        });
-
         /**
          * toolbar监听事件
          */
@@ -156,7 +168,7 @@
                     maxmin:true,
                     shadeClose: true,
                     area: ['100%', '100%'],
-                    content: '../page/table/add.html',
+                    content: ctxPath+'/sysUser/addUI',
                 });
                 $(window).on("resize", function () {
                     layer.full(index);
@@ -164,24 +176,59 @@
             } else if (obj.event === 'delete') {  // 监听删除操作
                 var checkStatus = table.checkStatus('currentTableId')
                     , data = checkStatus.data;
-                layer.alert(JSON.stringify(data));
+                let ids =[];
+                for(let i=0;i<data.length;i++){
+                    ids.push(data[i].id);
+                }
+                $.ajax({
+                    url : ctxPath+"/sysUser/delete",
+                    type : 'post',
+                    datatype : 'String',
+                    data :{
+                        "ids" :ids.join(",")
+                    },
+                    success : function(result) {
+                        if (result.code!==0) {
+                            layer.msg(result.msg);
+                        } else {
+                            window.parent.location.reload()
+                        }
+                    }
+                });
+
             }
         });
+        // 监听搜索操作
+        form.on('submit(data-search-btn)', function (data) {
+            var result = JSON.stringify(data.field);
+            console.log(data)
+            layer.alert(result, {
+                title: '最终的搜索信息'
+            });
 
+            //执行搜索重载
+            table.reload('currentTableId', {
+                page: {
+                    curr: 1
+                }
+                , where: data.field
+            }, 'data');
+
+            return false;
+        });
         //监听表格复选框选择
         table.on('checkbox(currentTableFilter)', function (obj) {
             console.log(obj)
         });
         //监听开关
         //监听指定开关
-
         form.on('switch(status_switch)', function (data) {
             var id  = data.value;
             console.log(id);
             var status = this.checked ? "1" : "2";
             $.ajax({
                 type:"get",
-                url:"/sysUser/setStatus",
+                url:ctxPath+"/sysUser/setStatus",
                 dataType:'JSON',
                 data:{
                     "id":id,"status":status
@@ -221,7 +268,7 @@
                     maxmin:true,
                     shadeClose: true,
                     area: ['100%', '100%'],
-                    content: '../page/table/edit.html',
+                    content: ctxPath+'/sysUser/editUI?id='+data.id,
                 });
                 $(window).on("resize", function () {
                     layer.full(index);
@@ -229,13 +276,27 @@
                 return false;
             } else if (obj.event === 'delete') {
                 layer.confirm('真的删除行么', function (index) {
-                    obj.del();
-                    layer.close(index);
+                    $.ajax({
+                        url :ctxPath+"/sysUser/delete",
+                        type : 'post',
+                        datatype : 'String',
+                        data :{
+                            "ids" : data.id
+                        },
+                        success : function(result) {
+                            if (result.code!=0) {
+                                layer.msg(result.msg);
+                            } else {
+                                window.parent.location.reload()
+                            }
+                        }
+                    });
                 });
             }
         });
 
     });
+
 </script>
 
 </body>
