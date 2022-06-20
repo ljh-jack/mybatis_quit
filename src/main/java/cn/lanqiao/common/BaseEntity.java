@@ -10,12 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-/**
- * 基类实体对象
- *
- * @author yangjianqing
- * @date 2019/11/28
- */
+
 @Data
 public class BaseEntity implements Serializable {
 

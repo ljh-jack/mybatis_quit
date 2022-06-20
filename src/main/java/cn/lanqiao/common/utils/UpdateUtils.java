@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UpdateUtils {
 
     @Value("defaultImg")
-    public static String DEFAUlT_IMG;
+    public static String DEFAUlT_IMG = "/static/images/1518162958511.jpeg";
 
     public static String upload(MultipartFile file) {
         return "";

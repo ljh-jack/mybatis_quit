@@ -1,19 +1,20 @@
 package cn.lanqiao.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
 
 /**
  * <p>
  * 用户和角色关联表
  * </p>
  *
- * @author ljh
+ * @author Ljh
  * @since 2022-05-23
  */
 @Data
@@ -38,5 +39,8 @@ public class SysUserRole implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private String id;
 
-
+    public SysUserRole(String roleId, String userId) {
+        this.userId = userId;
+        this.roleId = roleId;
+    }
 }

@@ -6,17 +6,18 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 public class TreeVo {
     private String value; //值
     private String name; //名字
     private String parentId;
-    private boolean selected=false; //默认选中
+    private boolean selected= false; //默认选中
     private boolean  disabled= false; //选中不可更
     private List<TreeVo> children;
 
-    public TreeVo(String value, String parentId, String name) {
+    public TreeVo(String value,String parentId, String name) {
         this.value = value;
         this.name = name;
         this.parentId = parentId;
@@ -68,33 +69,38 @@ public class TreeVo {
      * @return
      */
     public static List<TreeVo> convertTreeVo(List<SysMenu> sysMenuList,  String topId, List<String> roleMenus) {
+        if (Objects.isNull(sysMenuList)) {
+            return convertTreeVo(sysMenuList,topId);
+        }
         if(StringUtils.isEmpty(topId)){
             topId="0";
         }
         List<TreeVo> nodeList = new ArrayList<>();
-//        1、判断列表是否为空
-        if (sysMenuList == null || sysMenuList.isEmpty()) {
-            return nodeList;
-        }
-        if(StringUtils.isNotEmpty(topId)){
-            //遍历获取根节点
-            for(SysMenu sd:sysMenuList){
-                if(sd.getParentId().equals(topId)){
-                    //创建根节点,id与topId相同的就是根节点
-                    TreeVo treeVo = new TreeVo(sd.getId(), sd.getParentId(), sd.getMenuName());
-                    //判断该节点是否为选中
-                    if(roleMenus.contains(treeVo.getValue())){
-                        treeVo.setSelected(true);
+        String finalTopId = topId;
+        sysMenuList.forEach(s -> {
+            if (String.valueOf(s.getParentId()).equals(finalTopId)) {
+                TreeVo treeVo = new TreeVo(String.valueOf(s.getId())
+                        , String.valueOf(s.getParentId()), s.getMenuName());
+                treeVo.setChildren(setChild(treeVo,sysMenuList));
+                List<TreeVo> result = treeVo.getChildren();
+                if (!result.isEmpty()) {
+                    for (TreeVo tVo : result) {
+                        List<TreeVo> children = tVo.getChildren();
+                        int count = children.size();
+                        for (TreeVo child : children) {
+                            if (roleMenus.contains(child.getValue())) {
+                                child.setSelected(true);
+                                count--;
+                            }
+                        }
+                        if (!children.isEmpty() && count == 0) {
+                            tVo.setSelected(true);
+                        }
                     }
-                    //获取根节点下的字节点
-                    List<TreeVo> treeVos = setChild(treeVo, sysMenuList,roleMenus);
-                    //将节点添加到根节点
-                    treeVo.setChildren(treeVos);
-                    nodeList.add(treeVo);
-
                 }
+                nodeList.add(treeVo);
             }
-        }
+        });
         return nodeList;
     }
     /**
@@ -109,8 +115,8 @@ public class TreeVo {
             if(sd.getParentId().equals(treeVo.getValue())){
                 //构造子节点
                 TreeVo nodeVo = new TreeVo(sd.getId(), sd.getParentId(), sd.getMenuName());
-                if(roleMenus.contains(nodeVo.getValue())){
-                    treeVo.setSelected(true);
+                if(!roleMenus.contains(nodeVo.getValue())){
+                    treeVo.setSelected(false);
                 }
                 //递归设置子节点
                 nodeVo.setChildren(setChild(nodeVo,sysMenuList,roleMenus));

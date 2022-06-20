@@ -4,92 +4,117 @@ package cn.lanqiao.controller;
 import cn.lanqiao.common.BaseController;
 import cn.lanqiao.common.utils.JsonResult;
 import cn.lanqiao.entity.SysUser;
+import cn.lanqiao.entity.UserEntity;
 import cn.lanqiao.query.SysUserQuery;
+import cn.lanqiao.utils.ExcelUtil;
+import cn.lanqiao.vo.UserRoleVo;
+import org.springframework.beans.BeanUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * <p>
  * 用户信息表 前端控制器
  * </p>
  *
- * @author ljh
+ * @author Ljh
  * @since 2022-05-23
  */
 @Controller
 @RequestMapping(SysUserController.SOURCE)
 public class SysUserController extends BaseController {
-    static final String SOURCE = "sysUser";
-    /**
-     * 返回用户页面
-     * @return
-     */
-    @RequestMapping("toIndex")
-    public String toIndex(){
-        return SysUserController.SOURCE+"/index";
+
+    public static final String SOURCE = "sysUser";
+
+    @RequestMapping("/toIndex")
+    @PreAuthorize("hasAuthority('/sysUser/toIndex')")
+    public String toIndex() {
+        return SysUserController.SOURCE + "/index";
     }
+
+    @RequestMapping("/addUI")
+    public String addUI() {
+        return SysUserController.SOURCE + "/add";
+    }
+
     /**
      * 添加用户页面
      * @return
-     */
-    @RequestMapping("/addUI")
-    public String addUI() {
-        return SysUserController.SOURCE+"/add";
-    }
-    /**
-     * 添加用户
-     5、SysUserServiceImpl
-     * @param entity 实体对象
-     * @return
-     */
-    @ResponseBody
-    @PostMapping("/add")
-    public JsonResult add(@RequestBody SysUser entity) {
-        return userService.edit(entity);
-    }
-
-    /**
-     * 编辑用户页面
-     * @return
-     */
+     * */
+    @PreAuthorize("hasAuthority('/sysUser/updateSysUser')")
     @RequestMapping("/editUI")
     public ModelAndView editUI(Long id, ModelAndView view) {
-        SysUser sysUser =(SysUser)userService.getInfo(id);
-        view.addObject("info",sysUser);
-        view.setViewName(SysUserController.SOURCE+"/edit");
-        return view ;
+        UserRoleVo entity = (UserRoleVo) userService.getInfo(id);
+        view.addObject("info", entity);
+        view.setViewName(SysUserController.SOURCE + "/edit");
+        return view;
     }
 
     /**
-     * 分页条件查询用户
-     * @param suq
+     * 查询用户
+     *
+     * @param query
      * @return
      */
-    @RequestMapping("list")
-    @ResponseBody
-    public JsonResult list(SysUserQuery suq){
-    return userService.getList(suq);
+    @PreAuthorize("hasAuthority('/sysUser/findSysUserPage')")
+    @ResponseBody //回传json数据
+    @RequestMapping("/list")
+    public JsonResult list(SysUserQuery query) {
+        return userService.getList(query);
     }
+
     /**
-     * 设置状态
+     * 添加用户
+     * @param entity 实体对象
      * @return
-     */
-    @RequestMapping("/setStatus")
+     * */
     @ResponseBody
-    public JsonResult setStatus(SysUser entity) {
-        return userService.setStatus(entity);
+    @PostMapping("/add")
+    @PreAuthorize("hasAnyAuthority('/sysUser/updateSysUser','/sysUser/saveSysUser')")
+    public JsonResult add(@RequestBody SysUserQuery entity) {
+        SysUser sysUser = new SysUser();
+        BeanUtils.copyProperties(entity,sysUser);
+        return userService.edit(sysUser,entity.getRoleIds());
     }
+
     /**
-     * 按id删除用户
+     * 根据id删除用户
      * @param ids
      * @return
      */
-    @RequestMapping("/delete")
+    @PreAuthorize("hasAuthority('/sysUser/deleteSysUser')")
     @ResponseBody
-    public JsonResult delete(String ids) {
+    @RequestMapping("/delete")
+    public JsonResult deleteUser(String ids) {
         return userService.deleteByIds(ids);
     }
-}
 
+    /**
+     * 修改状态
+     *
+     * @param sysUser
+     * @return
+     */
+    @PreAuthorize("hasAuthority('/sysUser/updateSysUser')")
+    @RequestMapping("/setStatus")
+    @ResponseBody
+    public JsonResult setStatus(SysUser sysUser) {
+        return userService.setStatus(sysUser);
+    }
+    @RequestMapping("/uploadUsers")
+    @ResponseBody
+    public JsonResult uploadUsers(MultipartFile file){
+        return  userService.uploadUsers(file);
+    }
+    @RequestMapping("/downLoadUsers")
+    public JsonResult downLoadUsers(){
+        return null;
+    }
+}
 

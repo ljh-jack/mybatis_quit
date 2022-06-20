@@ -15,7 +15,7 @@ public class JsonResult implements Serializable {
     private Integer code = 0;
 
     // 提示语
-    private String msg = "操作成功";
+    private static String msg = "操作成功";
 
     // 返回对象
     private Object data;
@@ -95,7 +95,7 @@ public class JsonResult implements Serializable {
         return new JsonResult(msg);
     }
 
-    public JsonResult success(Object data) {
+    public static JsonResult success(Object data) {
         return new JsonResult(0, msg, data);
     }
 

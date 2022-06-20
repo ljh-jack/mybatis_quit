@@ -1,14 +1,17 @@
 package cn.lanqiao.constant;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author ljh
- * @version 1.0
- * @date 2022/5/23 19:43
- */
 public class UserConstant {
+    @Resource
+    private BCryptPasswordEncoder passwordEncoder;
+    public static  String DEFAULT_PWD  ="$10$tg4UtlQHE4P/Du7ZcNZkae4Tahc56/Qx06Ho66JHtrLx04ZwJUD6m";
+
     /**
      * 性别
      */

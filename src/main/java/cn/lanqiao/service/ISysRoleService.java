@@ -3,7 +3,6 @@ package cn.lanqiao.service;
 import cn.lanqiao.common.BaseQuery;
 import cn.lanqiao.common.utils.JsonResult;
 import cn.lanqiao.entity.SysRole;
-import cn.lanqiao.query.SysRoleQuery;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -11,17 +10,37 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * 角色信息表 服务类
  * </p>
  *
- * @author ljh
+ * @author Ljh
  * @since 2022-05-23
  */
 public interface ISysRoleService extends IService<SysRole> {
-
+    /**
+     * 根据查询条件获取数据列表
+     * @param query 查询条件
+     * @return
+     */
     JsonResult getList(BaseQuery query);
 
-    JsonResult deleteByIds(String ids);
-
+    /**
+     *根据ID获取记录信息
+     * @param id 记录ID
+     * @return
+     */
     Object getInfo(Long id);
 
-    JsonResult edit(SysRole sysRole, String menuIds);
-    
+    /**
+     * 添加用户并且添加权限信息
+     * @param entity
+     * @param menuIds
+     * @return
+     */
+    JsonResult edit(SysRole entity, String menuIds);
+
+    /**
+     * 根据ID删除记录
+     * @param ids
+     * @return
+     */
+    JsonResult deleteByIds(String ids);
+
 }

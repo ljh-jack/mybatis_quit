@@ -1,29 +1,34 @@
 package cn.lanqiao.entity;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
+import cn.afterturn.easypoi.excel.annotation.ExcelTarget;
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.TableField;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.*;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * <p>
  * 用户信息表
  * </p>
  *
- * @author ljh
+ * @author Ljh
  * @since 2022-05-23
  */
 @Data
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
+@AllArgsConstructor
+@Getter
+@Setter
+@ToString
 @Accessors(chain = true)
 public class SysUser implements Serializable {
-
     private static final long serialVersionUID = 1L;
-
     /**
      * 用户ID
      */
@@ -143,6 +148,16 @@ public class SysUser implements Serializable {
      */
     @TableField("remark")
     private String remark;
-
-
+    public SysUser(String deptId, String userName, String loginName, String userType, String email, String phoneNumber, String s, String defaultPwd, String one, String remark, LocalDateTime now) {
+        this.deptId = deptId;
+        this.userName= userName;
+        this.loginName = loginName;
+        this.userType =userType;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.password =defaultPwd;
+        this.sex = one;
+        this.remark =remark;
+        this.createTime =now;
+    }
 }

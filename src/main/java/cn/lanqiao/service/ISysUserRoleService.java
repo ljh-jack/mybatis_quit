@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * 用户和角色关联表 服务类
  * </p>
  *
- * @author ljh
+ * @author Ljh
  * @since 2022-05-23
  */
 public interface ISysUserRoleService extends IService<SysUserRole> {
